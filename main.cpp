@@ -1,169 +1,108 @@
-#include "funcoes.cpp"
+#include <iostream>
+#include <cstring>
+#include <fstream>
 
 using namespace std;
 
-int main()
+const int N = 10;
+
+struct Call_911
 {
-    int posInicio,posFim;
-    int escolha;
-    int posicaoInsercao;
-    string palavra;
-    Call_911 Novo;
-    int posCharVet = 0;
-    int pos0;
-    bool controle;
-    while(controle)
-    {
-        menu();
+	int id;
+	float lat;
+	float lgn;
+	char desc[100];
+	float zip;
+	char title[100];
+	char timeStamp[100];
+	char twp[100];
+	char addr[100];
+	int e;
+};
 
-        cin >> escolha;
-        
-        switch (escolha)
-        {
-        case 1:
-            lerRegistros();
-            break;
-        
-        case 2:
-            cout << "Insira a posicao inicial: ";
-            cin >> posInicio;
-            cout << "Insira a posicao final: ";
-            cin >> posFim;
-            lerPos(posInicio,posFim);
-            break;
-        case 3:
-            cout << "Insira a posicao do primeiro dado que deseja trocar:";
-            cin >> posInicio;
-            cout << "Insira a posicao do segundo dado que deseja trocar:";   
-            cin >> posFim; 
-            alterarPos(posInicio,posFim);
-            break;
-        case 4:
-            cout << "Insira a posicao em que deseja inserir um novo registro: ";
-            cin >> posicaoInsercao;
-            cout << "Insira a latitude: ";
-            cin >> Novo.lat;
-            cout << "Insira a longitude: ";
-            cin >> Novo.lgn;
-            cin.ignore();
-            cout << "Preencha a descricao: ";
-            getline(cin,palavra);
-            while(posCharVet <= int(sizeof(Novo.desc)))
-            {
-                Novo.desc[posCharVet] = palavra[posCharVet];
-                posCharVet++; 
-            }
-            cout << "Preencha o zip: ";
-            cin >> Novo.zip;
-            cin.ignore();
-            cout << "Preencha o titulo: ";
-            getline(cin,palavra);
-            posCharVet = 0;
-            while(posCharVet <= int(sizeof(Novo.title)))
-            {
-                Novo.title[posCharVet] = palavra[posCharVet];
-                posCharVet++; 
-            }
-            cout << "Preencha o timeStemp: ";
-            getline(cin,palavra);
-            posCharVet = 0;
-            while(posCharVet <= int(sizeof(Novo.timeStamp)))
-            {
-                Novo.timeStamp[posCharVet] = palavra[posCharVet];
-                posCharVet++; 
-            }
-            cout << "Preencha o twp: ";
-            getline(cin,palavra);
-            posCharVet = 0;
-            while(posCharVet <= int(sizeof(Novo.twp)))
-            {
-                Novo.twp[posCharVet] = palavra[posCharVet];
-                posCharVet++; 
-            }
-            cout << "Preencha o endereco: ";
-            getline(cin,palavra);
-            posCharVet = 0;
-            while(posCharVet <= int(sizeof(Novo.addr)))
-            {
-                Novo.addr[posCharVet] = palavra[posCharVet];
-                posCharVet++; 
-            }
-            cout << "Insira o E: ";
-            cin >> Novo.e;
-            Novo.flag = true;
+struct arquivos{
 
-            inserirNovoRegistro(posicaoInsercao, Novo);
-            break;
-        case 5:
+    FILE *f;
+    int pos,max;
+    Call_911 *buffer;
+};
 
-            cout << "Posicao que deseja alterar os dados: ";
-            cin >> pos0;
-            cout << "Preencha a nova latitude: ";
-            cin >> Novo.lat;
-            cout << "Preencha a nova longitude: ";
-            cin >> Novo.lgn;
-            cin.ignore();
-            cout << "Preencha a nova descricao: ";
-            getline(cin,palavra);
-            while(posCharVet <= int(sizeof(Novo.desc)))
-            {
-                Novo.desc[posCharVet] = palavra[posCharVet];
-                posCharVet++; 
-            }
-            cout << "Preencha o novo zip: ";
-            cin >> Novo.zip;
-            cin.ignore();
-            cout << "Preencha o novo titulo: ";
-            getline(cin,palavra);
-            posCharVet = 0;
-            while(posCharVet <= int(sizeof(Novo.title)))
-            {
-                Novo.title[posCharVet] = palavra[posCharVet];
-                posCharVet++; 
-            }
-            cout << "Preencha o novo timeStamp: ";
-            getline(cin,palavra);
-            posCharVet = 0;
-            while(posCharVet <= int(sizeof(Novo.timeStamp)))
-            {
-                Novo.timeStamp[posCharVet] = palavra[posCharVet];
-                posCharVet++; 
-            }
-            cout << "Preencha o novo twp: ";
-            getline(cin,palavra);
-            posCharVet = 0;
-            while(posCharVet <= int(sizeof(Novo.twp)))
-            {
-                Novo.twp[posCharVet] = palavra[posCharVet];
-                posCharVet++; 
-            }
-            cout << "Preencha o novo endereco: ";
-            getline(cin,palavra);
-            posCharVet = 0;
-            while(posCharVet <= int(sizeof(Novo.addr)))
-            {
-                Novo.addr[posCharVet] = palavra[posCharVet];
-                posCharVet++; 
-            }
-            cout << "Preencha o novo E: ";
-            cin >> Novo.e;
-
-            alterarDados(pos0, Novo);
-            break;
-        case 6:
-            cout << "Insira a posicao que deseja excluir: ";
-            cin >> posInicio;
-            deletar(posInicio);
-            break;
-
-        case 7:
-            controle = false;
-            break;
-
-        default:
-            cout << "Favor escolher uma opcao valida" << endl;
-            break;
-        }    
+void salvaArq(string nome,Call_911 *partes,int tam){
+    ofstream temp(nome,ios::binary);
+    for(int i = 0; i < tam;i++){
+        temp.write((char*)&partes[i],sizeof(partes[i]));
     }
+
+}
+
+void quickSort(string nome,int numArqs, int buffer){
+
+}
+
+int ordenaPartes(string nome){
+    Call_911 *partes = new Call_911[N];
+    int cont = 0, tot = 0;
+    ifstream origem;
+    origem.open(nome, ios::binary);
+    string nomeSec;
+
+    while(origem){
+        
+        origem.read((char*) &partes[tot],sizeof(partes[tot]));
+        tot++;
+        if(tot == N){
+            cont++;
+            nomeSec = ("temp%d.bin",cont);
+            salvaArq(nomeSec,partes,tot);
+            tot=0;
+        }
+    }
+    if(tot> 0){
+        cont++; 
+        nomeSec = ("temp%d.bin",cont);
+        salvaArq(nomeSec,partes,tot);
+    }
+
+    origem.close();
+    return cont;
+}
+
+void merge(string nome,int numArqs, int k){
+
+    int menor,qtdBuffers = 0;
+    string nomeSec;
+    Call_911 *buffer = new Call_911[k];
+    arquivos *arq = new arquivos[numArqs];
+
+    for(int i = 0; i < numArqs; i++){
+        nomeSec = ("temp%d.bin",i+1);
+        arq[i].f.open(nomeSec);
+        arq[i].max = 0;
+        arq[i].pos = 0;
+        arq[i].buffer = new Call_911[k];
+        preencheBuffer(&arq[i],k);
+    }
+
+}
+
+void externalSort(string nome){
+
+    int numArqs = ordenaPartes(nome);
+    int k = N / (numArqs+1);
+
+    remove(nome);
+    merge(nome,numArqs,k);
+
+
+    for(int i = 0; i< numArqs; i++){
+        remove("temp.bin");
+    }
+}
+
+
+int main(){
+
+    externalSort("paste.bin");
+
     return 0;
 }
