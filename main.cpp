@@ -35,8 +35,29 @@ void salvaArq(string nome,Call_911 *partes,int tam){
 
 }
 
-void quickSort(string nome,int numArqs, int buffer){
-
+void quickSort(Call_911 *vet, int numArqs)
+{
+    int i = 0;
+    int j = numArqs;
+    Call_911 pivo = vet[(0+numArqs)/2];
+    while(i <= j)
+    {
+        while(vet[i].desc < pivo.desc and i < numArqs)
+            i++;
+        while(vet[j].desc > pivo.desc and j > 0)
+            j--;
+        if(i <= j)
+        {
+            swap(vet[i],vet[j]);
+            i++;
+            j--;
+        }
+    }
+    if(j > 0)
+		quickSort(vet, j+1);
+			
+	if(i < numArqs)
+		quickSort(vet, numArqs);
 }
 
 int ordenaPartes(string nome){
@@ -53,6 +74,7 @@ int ordenaPartes(string nome){
         if(tot == N){
             cont++;
             nomeSec = ("temp%d.bin",cont);
+            quickSort(partes, tot);
             salvaArq(nomeSec,partes,tot);
             tot=0;
         }
@@ -60,6 +82,7 @@ int ordenaPartes(string nome){
     if(tot> 0){
         cont++; 
         nomeSec = ("temp%d.bin",cont);
+        quickSort(partes, tot);
         salvaArq(nomeSec,partes,tot);
     }
 
@@ -69,7 +92,8 @@ int ordenaPartes(string nome){
 
 void merge(string nome,int numArqs, int k){
 
-    int menor,qtdBuffers = 0;
+    Call_911 menor;
+    int qtdBuffers = 0;
     string nomeSec;
     Call_911 *buffer = new Call_911[k];
     arquivos *arq = new arquivos[numArqs];
@@ -83,6 +107,81 @@ void merge(string nome,int numArqs, int k){
         preencheBuffer(&arq[i],k);
     }
 
+    while (procuraMenor(arq, numArqs, k, menor) == 1)
+    {
+        buffer[qtdBuffers] = menor;
+        qtdBuffers++;
+        if (qtdBuffers == k)
+        {
+            salvaArq(nome, buffer, k);
+            qtdBuffers = 0;
+        }
+    }
+    if (qtdBuffers != 0)
+    {
+        salvaArq(nome, buffer, qtdBuffers);
+    }
+    for (int i = 0; i < numArqs; i++)
+    {
+        delete[] arq[i].buffer;
+    }
+    delete[] arq;
+    delete[] buffer;
+}
+
+void preencheBuffer(arquivos *arq, int k)
+{
+    if (arq->f == NULL)
+    {
+        return;
+    }
+    
+    arq->pos = 0;
+    arq->max = 0;
+    for (int i = 0; i < k; i++)
+    {
+        if (!feof(arq->f))
+        {
+            fscanf(arq->f, "%d", &arq->buffer[arq->max]);
+            arq->max++;
+        }
+        else
+        {
+            fclose(arq->f);
+            arq->f = NULL;
+            break;
+        }
+    }
+}
+
+int procuraMenor(arquivos *arq, int numArqs, int k, Call_911 menor)
+{
+    int idx = -1;
+    for (int i = 0; i < numArqs; i++)
+    {
+        if (arq[i].pos < arq[i].max)
+        {
+            if(idx == -1)
+                idx = i;
+            else
+            {
+                if(arq[i].buffer[arq[i].pos].desc < arq[i].buffer[arq[idx].pos].desc)
+                    idx = i;
+            }
+        }
+    }
+    if (idx != -1)
+    {
+        menor = arq[idx].buffer[arq[idx].pos];
+        arq[idx].pos++;
+        if (arq[idx].pos == arq[idx].max)
+        {
+            preencheBuffer(&arq[idx], k);
+        }
+        return 1;
+    }
+    else
+        return 0;
 }
 
 void externalSort(string nome){
@@ -91,7 +190,7 @@ void externalSort(string nome){
     int k = N / (numArqs+1);
 
     remove(nome);
-    merge(nome,numArqs,k);
+    merge(nome, numArqs,k);
 
 
     for(int i = 0; i< numArqs; i++){
