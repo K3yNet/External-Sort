@@ -20,74 +20,54 @@ struct Call_911
 	int e;
 };
 
-struct MinHeapNode {
-    // The element to be stored
+struct Noh_MinHeap {
     Call_911 element;
-  
-    // index of the array from which
-    // the element is taken
-    int i;
+	int i;
 };
+
+void swap(Noh_MinHeap* x, Noh_MinHeap* y) 
+{ 
+    Noh_MinHeap temp = *x; 
+    *x = *y; 
+    *y = temp; 
+} 
   
-// Prototype of a utility function
-// to swap two min heap nodes
-void swap(MinHeapNode* x, MinHeapNode* y);
-  
-// A class for Min Heap
 class MinHeap {
-    // pointer to array of elements in heap
-    MinHeapNode* harr;
+private:
+    Noh_MinHeap* harr;
   
-    // size of min heap
     int heap_size;
   
 public:
-    // Constructor: creates a min
-    // heap of given size
-    MinHeap(MinHeapNode a[], int size);
+
+    MinHeap(Noh_MinHeap a[], int size);
   
-    // to heapify a subtree with
-    // root at given index
     void MinHeapify(int);
   
-    // to get index of left child
-    // of node at index i
     int left(int i) { return (2 * i + 1); }
   
-    // to get index of right child
-    // of node at index i
     int right(int i) { return (2 * i + 2); }
   
-    // to get the root
-    MinHeapNode getMin() { return harr[0]; }
+    Noh_MinHeap getMin() { return harr[0]; }
   
-    // to replace root with new node
-    // x and heapify() new root
-    void replaceMin(MinHeapNode x)
+    void replaceMin(Noh_MinHeap x)
     {
         harr[0] = x;
         MinHeapify(0);
     }
 };
-  
-// Constructor: Builds a heap from
-// a given array a[] of given size
-MinHeap::MinHeap(MinHeapNode a[], int size)
+
+MinHeap::MinHeap(Noh_MinHeap a[], int size)
 {
     heap_size = size;
-    harr = a; // store address of array
+    harr = a;
     int i = (heap_size - 1) / 2;
     while (i >= 0) {
         MinHeapify(i);
         i--;
     }
 }
-  
-// A recursive method to heapify
-// a subtree with root
-// at given index. This method
-// assumes that the
-// subtrees are already heapified
+
 void MinHeap::MinHeapify(int i)
 {
     int l = left(i);
@@ -119,7 +99,6 @@ int partition (Call_911 *bloco, int inicio, int fim)
     swap(bloco[i + 1], bloco[fim]); 
     return (i + 1); 
 } 
-  
 
 void quickSort(Call_911 *bloco, int inicio, int fim) 
 { 
@@ -133,12 +112,14 @@ void quickSort(Call_911 *bloco, int inicio, int fim)
 }
 
 void ordenaArquivosAuxiliares(){
+
 	ifstream arquivoEntrada;
 	ofstream arquivosDeSaida[n_blocos];
 
 	for(int i = 0; i < n_blocos;i++){
 		arquivosDeSaida[i].open(to_string(i+1)+".bin",ios::binary);
 	}
+
 	bool concluido = false;
 	int arquivoAtual = 0,index;
 
@@ -153,6 +134,7 @@ void ordenaArquivosAuxiliares(){
 	int tamanhoBlocos =  numeroRegistros / n_blocos; 
 	
 	Call_911 *blocos = new Call_911[tamanhoBlocos];
+
 	while(!concluido){
 		if(arquivoAtual == n_blocos)
 			concluido = true;
@@ -168,52 +150,154 @@ void ordenaArquivosAuxiliares(){
 		for(int j = 0; j < index; j++){
 			arquivosDeSaida[arquivoAtual].write((const char *) (&blocos[j]), sizeof(Call_911));
 		}
+
 		arquivoAtual++;
 	}
+
 	for (int i = 0; i < n_blocos; ++i)
 		arquivosDeSaida[i].close();
 
 	arquivoEntrada.close();
+
 }
 
-void mergeFile(int tamanhoBloco){
+void mergeFile(int flex){
+
+	Noh_MinHeap *aux = new Noh_MinHeap[n_blocos];
+    
     ifstream auxEntrada[n_blocos];
+
+    ofstream sorted("sorted.bin", ios::binary);
+
     for (int i = 0; i < n_blocos; i++)
     {
         auxEntrada[i].open(to_string(i+1)+".bin",ios::binary);
     }
-    ofstream sorted("sorted.bin", ios::binary);
 
-    MinHeapNode *aux = new MinHeapNode[n_blocos];
-
-    int i;
-    for (i = 0; i < n_blocos; i++) {
-        auxEntrada[i].seekg(i * sizeof(Call_911), auxEntrada[i].beg);
-		auxEntrada[i].read((char*)(&aux[i].element), sizeof(Call_911));
+    for (int i = 0; i < n_blocos; i++) {
+        if (!auxEntrada[i].read((char *)(&aux[i].element), sizeof(aux[i].element)))
+	        break;
         aux[i].i = i;
     }
-    
-    MinHeap hp(aux, i);
 
-    int count = 0;
+	MinHeap hp(aux, n_blocos);
 
-    while (count != i){
-        MinHeapNode raiz = hp.getMin();
-        sorted.write((const char *) (&raiz.element), sizeof(Call_911));
+	int cont = 0;
 
-        if (fscanf(auxEntrada[raiz.i], "%d ",&root.element) != 1) {
-            raiz.element.desc[0] = SCHAR_MAX;
-            count++;
+	while(cont != n_blocos){
+		
+		Noh_MinHeap raiz = hp.getMin();
+
+		sorted.write((char*)(&raiz.element), sizeof(Call_911));
+
+        if (flex == 1){
+            if (!auxEntrada[raiz.i].read((char *)(&raiz.element), sizeof(raiz.element)))
+            {
+                raiz.element.desc[0] = SCHAR_MAX;
+                cont++;
+            }
         }
-    }
-    
+        // if (flex == 2)
+        // {
+        //     if (!auxEntrada[raiz.i].read((char *)(&raiz.element), sizeof(raiz.element)))
+        //     {
+        //         raiz.element.id = INT_MAX;
+        //         cont++;
+        //     }
+        // }
 
+		hp.replaceMin(raiz);
+		
+	}
+
+    for (int i = 0; i < n_blocos; i++)
+    {
+        auxEntrada[i].close();
+    }
+	
+	sorted.close();
+
+}
+
+void removeAux(){
+    string nome_arquivo = "";
+
+    for (int i = 0; i < n_blocos; i++)
+    {
+        nome_arquivo = "";
+        nome_arquivo.clear();
+        nome_arquivo = to_string(i+1)+".bin";
+        remove(nome_arquivo.c_str());
+    }
+}
+
+void lerPos(int p1, int p2)
+{
+    ifstream paste;
+    paste.open("sorted.bin", ios::binary);
+
+    if ( paste )
+    {
+        Call_911 *registros = new Call_911[1];
+
+		for ( int i = p1; i < p2 + 1; i++ )
+		{
+			paste.seekg(i * sizeof(Call_911), paste.beg);
+			paste.read((char*)(&registros[0]), sizeof(Call_911));          
+            cout << registros[0].id << endl;
+            // cout << registros[0].lat << endl;
+            // cout << registros[0].lgn << endl;
+            cout << registros[0].desc << endl;
+            // cout << registros[0].zip << endl;
+            // cout << registros[0].title << endl;
+            // cout << registros[0].timeStamp << endl;
+            // cout << registros[0].twp << endl;
+            // cout << registros[0].addr << endl;
+            // cout << registros[0].e << endl;
+            cout << "- - - - - - - - - - - - " << endl;
+		}
+    }
+    else
+    {
+        cout << "Erro na leitura do arquivo!" << endl;
+    }
+	paste.close();
+    return;
 }
 
 int main(){
 
-	ordenaArquivosAuxiliares();
-	cout << "Sucess";
+    int escolha = 0;
+    int pos1 = 0;
+    int pos2 = 0;
+    while (escolha != -1)
+    {
+        cout << "[1] Ordenar pela descricao [2] Ler posicoes" << endl;
+        cout << "Escolha: ";
+        cin >> escolha;
+        switch (escolha)
+        {
+        case 1:
+            cout << "Criando arquivos auxiliares" << endl;
+            cout << "Ordenando arquivos auxiliares" << endl;
+            ordenaArquivosAuxiliares();
+            cout << "Mesclando arquivos auxiliares" << endl;
+            mergeFile(1);
+            cout << "Removendo arquivos auxiliares" << endl;
+            removeAux();
+            cout << "Ordenacao concluida!" << endl;
+            break;
+        case 2:
+            cout << "Insira a posicao 1: ";
+            cin >> pos1;
+            cout << "Insira a posicao 2: ";
+            cin >> pos2;
+            lerPos(pos1, pos2);
+            break;
+        default:
+            break;
+        }
+    }
 
 	return 0;
 }
