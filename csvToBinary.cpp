@@ -7,7 +7,7 @@ using namespace std;
 
 struct Call_911
 {
-	unsigned int id;
+	int id;
 	float lat;
 	float lgn;
 	char desc[120];
@@ -27,7 +27,7 @@ int main()
 	int cont = 0;
 	Call_911 paste;
 
-    ifstream csv("teste.csv");
+    ifstream csv("call911_2.csv");
 	ofstream arq;
 	arq.open("paste.bin", std::ios::binary);
     
