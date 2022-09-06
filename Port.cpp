@@ -1,10 +1,25 @@
+/*
+Nossa implementação utiliza o multi-way merge para ordenar o arquivo
+o código foi baseado na implementação encontrada em:https://www.geeksforgeeks.org/external-sorting/
+Tendo em mente que a ordenação interna visa apenas acelerar o processo sendo o foco a ordenação em memória
+secundária
+
+A ordenação é feita através da comparação do campo descrição, há também a possibilidade de ordenar pelo id
+se caso as descrições forem iguais
+
+A comparação considera números menores que as letras então o arquivo ordenado começa com as descrições começadas
+em números e posteriormente a ordem alfabética
+
+Código por Rafael Brunini, Enzo Velo e Lucas Gomes.
+*/
+
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <bits/stdc++.h>
 using namespace std;
 
-const int n_blocos = 80;
+const int n_blocos = 80; // Quantidade de Blocos em que o arquivo será dividido
 
 struct Call_911
 {
@@ -31,8 +46,8 @@ void swap(Noh_MinHeap* x, Noh_MinHeap* y)
     *x = *y; 
     *y = temp; 
 } 
-  
-class MinHeap {
+
+class MinHeap { // Construção do Heap onde os blocos ordenados serão agrupados
 private:
     Noh_MinHeap* vetor;
   
@@ -75,8 +90,19 @@ void MinHeap::MinHeapify(int i)
     int menor = i;
     if (esq < tamanhoHeap and (string)vetor[esq].element.desc < (string)vetor[i].element.desc)
         menor = esq;
+    else if(esq < tamanhoHeap and (string)vetor[esq].element.desc == (string)vetor[i].element.desc)
+    {
+        if(esq < tamanhoHeap and vetor[esq].element.id < vetor[i].element.id)
+            menor = esq;
+    }
     if (dir < tamanhoHeap and (string)vetor[dir].element.desc < (string)vetor[menor].element.desc)
         menor = dir;
+     else if(esq < tamanhoHeap and (string)vetor[dir].element.desc == (string)vetor[menor].element.desc)
+    {
+        if(esq < tamanhoHeap and vetor[esq].element.id < vetor[menor].element.id)
+            menor = dir;
+    }
+
     if (menor != i) {
         swap(&vetor[i], &vetor[menor]);
         MinHeapify(menor);
@@ -94,6 +120,15 @@ int partition (Call_911 *bloco, int inicio, int fim)
         { 
             i++;
             swap(bloco[i], bloco[j]); 
+        }
+        else if((string)bloco[j].desc == (string)pivo.desc)
+        {
+            if(bloco[j].id < pivo.id)
+            {
+                i++;
+                swap(bloco[i], bloco[j]); 
+            }
+
         } 
     } 
     swap(bloco[i + 1], bloco[fim]); 
@@ -161,7 +196,7 @@ void ordenaArquivosAuxiliares(){
 
 }
 
-void mergeFile(int flex){
+void mergeFile(){
 
 	Noh_MinHeap *aux = new Noh_MinHeap[n_blocos];
     
@@ -190,21 +225,11 @@ void mergeFile(int flex){
 
 		sorted.write((char*)(&raiz.element), sizeof(Call_911));
 
-        if (flex == 1){
             if (!auxEntrada[raiz.i].read((char *)(&raiz.element), sizeof(raiz.element)))
             {
                 raiz.element.desc[0] = SCHAR_MAX;
                 cont++;
             }
-        }
-        // if (flex == 2)
-        // {
-        //     if (!auxEntrada[raiz.i].read((char *)(&raiz.element), sizeof(raiz.element)))
-        //     {
-        //         raiz.element.id = INT_MAX;
-        //         cont++;
-        //     }
-        // }
 
 		hp.retiraRaiz(raiz);
 		
@@ -229,6 +254,7 @@ void removeAux(){
         nome_arquivo = to_string(i+1)+".bin";
         remove(nome_arquivo.c_str());
     }
+    remove("paste.bin");
 }
 
 void lerPos(int p1, int p2)
@@ -245,15 +271,15 @@ void lerPos(int p1, int p2)
 			paste.seekg(i * sizeof(Call_911), paste.beg);
 			paste.read((char*)(&registros[0]), sizeof(Call_911));          
             cout << registros[0].id << endl;
-            // cout << registros[0].lat << endl;
-            // cout << registros[0].lgn << endl;
+            cout << registros[0].lat << endl;
+            cout << registros[0].lgn << endl;
             cout << registros[0].desc << endl;
-            // cout << registros[0].zip << endl;
-            // cout << registros[0].title << endl;
-            // cout << registros[0].timeStamp << endl;
-            // cout << registros[0].twp << endl;
-            // cout << registros[0].addr << endl;
-            // cout << registros[0].e << endl;
+            cout << registros[0].zip << endl;
+            cout << registros[0].title << endl;
+            cout << registros[0].timeStamp << endl;
+            cout << registros[0].twp << endl;
+            cout << registros[0].addr << endl;
+            cout << registros[0].e << endl;
             cout << "- - - - - - - - - - - - " << endl;
 		}
     }
@@ -262,40 +288,50 @@ void lerPos(int p1, int p2)
         cout << "Erro na leitura do arquivo!" << endl;
     }
 	paste.close();
-    return;
 }
 
 int main(){
 
-    int escolha = 0;
     int pos1 = 0;
     int pos2 = 0;
-    while (escolha != -1)
+    bool lendo = true;
+    int escolha;
+
+    cout << "| BEM VINDO AO ORDENADOR DE ARQUIVOS |" << endl;
+    cout << "______________________________________" << endl;
+    cout << "Criando arquivos auxiliares" << endl;
+    cout << "___________________________" << endl;
+    cout << "Ordenando arquivos auxiliares" << endl;
+    cout << "_____________________________" << endl;
+    ordenaArquivosAuxiliares();
+    cout << "Mesclando arquivos auxiliares" << endl;
+    cout << "_____________________________" << endl;
+    mergeFile();
+    cout << "Removendo arquivos auxiliares" << endl;
+    cout << "_____________________________" << endl;
+    removeAux();
+    cout << "Ordenacao concluida!" << endl;
+    cout << "____________________" << endl;
+
+    while (lendo)
     {
-        cout << "[1] Ordenar pela descricao [2] Ler posicoes" << endl;
+        cout << "[1] Ler posicoes" << endl;
+        cout << "[2] Encerrar programa" << endl;
         cout << "Escolha: ";
         cin >> escolha;
         switch (escolha)
         {
-        case 1:
-            cout << "Criando arquivos auxiliares" << endl;
-            cout << "Ordenando arquivos auxiliares" << endl;
-            ordenaArquivosAuxiliares();
-            cout << "Mesclando arquivos auxiliares" << endl;
-            mergeFile(1);
-            cout << "Removendo arquivos auxiliares" << endl;
-            removeAux();
-            cout << "Ordenacao concluida!" << endl;
-            break;
-        case 2:
-            cout << "Insira a posicao 1: ";
-            cin >> pos1;
-            cout << "Insira a posicao 2: ";
-            cin >> pos2;
-            lerPos(pos1, pos2);
-            break;
-        default:
-            break;
+            case 1:
+                cout << "Insira a posicao 1: ";
+                cin >> pos1;
+                cout << "Insira a posicao 2: ";
+                cin >> pos2;
+                lerPos(pos1, pos2);
+                break;
+            default:
+                cout << "FIM DA EXECUCAO....";
+                lendo = false;
+                break;
         }
     }
 
