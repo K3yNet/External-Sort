@@ -135,7 +135,7 @@ int partition (Call_911 *bloco, int inicio, int fim)
     return (i + 1); 
 } 
 
-void quickSort(Call_911 *bloco, int inicio, int fim) 
+void quickSort(Call_911 *bloco, int inicio, int fim) // Utilizado como a ordenacao interna para acelerar o processo de ordenacao
 { 
     if (inicio < fim) 
     { 
@@ -172,9 +172,9 @@ void ordenaArquivosAuxiliares(){
 
 	while(!concluido){
 		if(arquivoAtual == n_blocos)
-			concluido = true;
+			concluido = true; // Enquanto não chega no ultimo arquivo repete-se o processo
 
-		for(index = 0; index < tamanhoBlocos;index++){
+		for(index = 0; index < tamanhoBlocos;index++){ // Divide os arquivos em blocos menores para facilitar a ordenação
             posicaoNoArquivo ++;
 			arquivoEntrada.seekg(posicaoNoArquivo * sizeof(Call_911), arquivoEntrada.beg);
 			arquivoEntrada.read((char*)(&blocos[index]), sizeof(Call_911));
@@ -215,8 +215,7 @@ void mergeFile(){
         aux[i].i = i;
     }
 
-	MinHeap hp(aux, n_blocos);
-
+	MinHeap hp(aux, n_blocos); // Como o heap funciona como fila de prioridade na raiz sempre estara o menor elemento entre os blocos
 	int cont = 0;
 
 	while(cont != n_blocos){
@@ -244,7 +243,7 @@ void mergeFile(){
 
 }
 
-void removeAux(){
+void removeAux(){ // funcao para remover os arquivos auxiliares e o arquivo de entrada uma vez que um novo arquivo ja ordenado é gerado
     string nome_arquivo = "";
 
     for (int i = 0; i < n_blocos; i++)
@@ -257,7 +256,7 @@ void removeAux(){
     remove("paste.bin");
 }
 
-void lerPos(int p1, int p2)
+void lerPos(int p1, int p2) // A leitura é feita após a ordenação para comprovar seu funcionamento
 {
     ifstream paste;
     paste.open("sorted.bin", ios::binary);
