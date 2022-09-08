@@ -211,7 +211,7 @@ void mergeFile(){
 
     for (int i = 0; i < n_blocos; i++) {
         if (!auxEntrada[i].read((char *)(&aux[i].element), sizeof(aux[i].element)))
-	        break;
+	        i = n_blocos + 1;
         aux[i].i = i;
     }
 
